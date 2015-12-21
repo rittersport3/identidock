@@ -2,6 +2,8 @@ from flask import Flask, Response, request
 import requests
 import hashlib
 import redis
+import html
+
 
 default_name = 'Joe Bloggs'
 salt = "UNIQUE_SALT"
@@ -15,6 +17,7 @@ def mainpage():
 
     if request.method == "POST":
         name = request.form["name"]
+        name = html.escape(name, quote=True)
 
     salted_name = salt + name
 
@@ -22,7 +25,7 @@ def mainpage():
 
     header = '<html><head><title>Identidock</title></head><body>'
     body = '''<form method="POST">
-                  Helslo <input type="text" name="name" value="{0}">
+                  Hello <input type="text" name="name" value="{0}">
                   <input type="submit" value="submit">
                   </form>
                   <p>You sss like a:
@@ -34,6 +37,7 @@ def mainpage():
 
 @app.route('/monster/<name>')
 def get_identicon(name):
+    name = html.escape(name, quote=True)
     image = cache.get(name)
     if image is None:
         print("cache miss", flush=True)
